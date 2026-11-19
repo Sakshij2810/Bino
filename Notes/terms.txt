@@ -1,0 +1,8 @@
+application concepts:
+
+1) orderbook: how many peoples are trying to sell / buy stock....these records we store in orderbook
+
+
+
+extras
+1) fast.com : check internet

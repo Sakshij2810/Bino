@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { api } from "../lib/api";
 import { useAuthStore } from "../store/useAuthStore";
-import { server_side_endpoints } from "@/utils/server_side_endpoints";
+import { server_side_endpoints } from "@/lib/server_side_endpoints";
 
 async function submitAuthForm(path: string, form: FormData) {
   const { data } = await api.post(path, Object.fromEntries(form));
@@ -17,6 +17,7 @@ export function useSignup() {
     mutationFn: (form: FormData) =>
       submitAuthForm(server_side_endpoints.auth.signup, form),
     onSuccess: setUser,
+    //onSuccess: (user) => {setUser(user)},
   });
 }
 
@@ -27,6 +28,7 @@ export function useLogin() {
     mutationFn: (form: FormData) =>
       submitAuthForm(server_side_endpoints.auth.login, form),
     onSuccess: setUser,
+    //onSuccess: (user) => {setUser(user)},
   });
 }
 

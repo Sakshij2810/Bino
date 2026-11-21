@@ -2,7 +2,7 @@
 
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
-import { server_side_endpoints } from "@/utils/server_side_endpoints";
+import { server_side_endpoints } from "@/lib/server_side_endpoints";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 

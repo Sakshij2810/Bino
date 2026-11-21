@@ -16,6 +16,7 @@ export const isAuth = async (
 
   try {
     const payload = jwt.verify(token, env.JWT_SECRET) as { userId: string }; // We are telling TypeScript: "Treat this payload as an object that contains a userId property of type string."
+
     req.userId = payload.userId;
 
     next();

@@ -1,3 +1,4 @@
+import { useSession } from "@/hooks/useSession";
 import { useAuthStore } from "@/store/useAuthStore";
 import React, { type ReactNode } from "react";
 import { Navigate } from "react-router";
@@ -6,16 +7,16 @@ interface ProtectedRouteProps {
   children: ReactNode;
 }
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, checking, sessionError } = useAuthStore();
-
-  if (checking) {
+  const { user } = useAuthStore();
+  const { isPending, isError, error } = useSession();
+  if (isPending) {
     <p className="text-zinc-400">Checking session…</p>;
   }
 
-  if (sessionError) {
+  if (isError) {
     <div>
       <p role="alert" className="error">
-        {sessionError}
+        {error?.message}
       </p>
       <button
         className="btn-secondary mt-4"

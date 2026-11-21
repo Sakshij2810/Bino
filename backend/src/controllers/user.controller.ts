@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 import { signinSchema, signupSchema } from "../utils/validation";
 import User from "../models/user.model";
@@ -73,13 +73,15 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password"); // .select("+password") is a Mongoose query method that tells MongoDB to include the password field in the returned document, even if that field is normally excluded by default.
 
     if (!user) {
       return res
-        .status(404)
-        .json({ success: false, message: "User not found." });
+        .status(401)
+        .json({ success: false, message: "Invalid email or password." });
     }
+
+    // const isMatch = await bcrypt.compare(password, user.password);
 
     const isMatch = await bcrypt.compare(password, user.password);
 
@@ -116,7 +118,7 @@ export const logout = async (req: Request, res: Response) => {
 
 export const me = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
 
     const user = await User.findById(userId);
 

@@ -1,11 +1,5 @@
 import axios from "axios";
 
-// const backendUrl = import.meta.env.BACKEND_URL;
-
-// if (!backendUrl) {
-//   console.log("backendUrl missing: ", backendUrl);
-// }
-
 export const api = axios.create({
   baseURL: "http://localhost:4000/api",
   withCredentials: true,

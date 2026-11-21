@@ -1,45 +1,35 @@
-import { api } from "@/lib/api";
+import { useLogin, useSignup } from "@/hooks/useAuth";
+import { useSession } from "@/hooks/useSession";
 import { useAuthStore } from "@/store/useAuthStore";
-import React, { useState } from "react";
+import React from "react";
 import { Link, Navigate, useLocation } from "react-router";
 
 type AuthFormProps = {
   mode: "login" | "signup";
 };
 const AuthForm = ({ mode }: AuthFormProps) => {
-  const isSignup = mode === "signup";
-
-  const { user, checking, setUser } = useAuthStore();
-
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-
   const location = useLocation();
 
+  const isSignup = mode === "signup";
   const destination = location.state?.from ?? "/profile";
+
+  const { user } = useAuthStore();
+
+  const { isPending } = useSession();
+  const signup = useSignup();
+  const login = useLogin();
+  const auth = isSignup ? signup : login;
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
-    setError("");
 
-    const body = Object.fromEntries(new FormData(event.currentTarget));
-
-    try {
-      const { data } = await api.post(
-        isSignup ? "/auth/signup" : "/auth/login",
-        body,
-      );
-      setUser(data.user);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    const form = new FormData(event.currentTarget);
+    auth.mutate(form);
   };
 
-  if (checking) return <p className="text-zinc-400">Checking session…</p>;
+  if (isPending) return <p className="text-zinc-400">Checking session…</p>;
   if (user) return <Navigate to={destination} replace />;
+
   return (
     <section className="panel mx-auto max-w-md">
       <h1 className="page-title">
@@ -78,14 +68,18 @@ const AuthForm = ({ mode }: AuthFormProps) => {
           />
         </label>
 
-        {error && (
+        {auth.isError && (
           <p role="alert" className="error">
-            {error}
+            {auth.error.message}
           </p>
         )}
 
-        <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "Please wait…" : isSignup ? "Create account" : "Log in"}
+        <button className="btn-primary" type="submit" disabled={auth.isPending}>
+          {auth.isPending
+            ? "Please wait…"
+            : isSignup
+              ? "Create account"
+              : "Log in"}
         </button>
       </form>
 

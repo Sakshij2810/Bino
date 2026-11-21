@@ -1,13 +1,34 @@
+import { useSession } from "@/hooks/useSession";
+import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
+import { isAxiosError } from "axios";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const Navbar = () => {
-  const { user, setUser, checking } = useAuthStore();
-  const [error, setError] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const { isPending } = useSession();
+
+  const { user, setUser } = useAuthStore();
+  const [error, setError] = useState<string>("");
   const [loggingOut, setLoggingOut] = useState<boolean>(false);
 
-  const handleLogout = () => {};
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    setError("");
+
+    try {
+      await api.post("/auth/logout");
+      navigate("/", { replace: true });
+      setUser(null);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        setError(error instanceof Error ? error.message : "Logout failed.");
+      }
+    } finally {
+      setLoggingOut(false);
+    }
+  };
   return (
     <header className="border-b border-zinc-800">
       <nav className="shell flex min-h-16 flex-wrap items-center gap-5 py-3">
@@ -23,7 +44,7 @@ const Navbar = () => {
         </Link>
 
         <div className="ml-auto flex flex-wrap items-center gap-4">
-          {checking ? (
+          {isPending ? (
             <span className="nav-link">Checking session…</span>
           ) : user ? (
             <>
